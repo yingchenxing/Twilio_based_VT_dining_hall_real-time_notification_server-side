@@ -35,7 +35,7 @@ public class MessageSender {
     /**
      * send message every 5 second
      */
-    @Scheduled(cron = "*/5 * * * * ?")
+    @Scheduled(cron = "*/30 * * * * ?")
     public void sendMessageJob() {
         QueryWrapper<MessageInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("state", 1);
@@ -44,19 +44,20 @@ public class MessageSender {
         String msgContent = getContent();
         for (MessageInfo msg : messageList) {
 
-            if (msg.getMinute()==now.getMinute()&&msg.getHour()==now.getHour()) {
-                try {
-                    sendMessage(FROM_NUMBER, msg.getPhoneNumber(), msgContent);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    break;
+            if (msg.getMinute() == now.getMinute() && msg.getHour() == now.getHour()) {
+                if (!msg.getHasSent()) {
+                    try {
+                        sendMessage(FROM_NUMBER, msg.getPhoneNumber(), msgContent);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        break;
+                    }
                 }
                 System.out.println(msgContent);
                 msg.setHasSent(true);
                 messageService.saveOrUpdate(msg);
-            }else{
-
-                msg.setHasSent(true);
+            } else {
+                msg.setHasSent(false);
             }
 
         }
