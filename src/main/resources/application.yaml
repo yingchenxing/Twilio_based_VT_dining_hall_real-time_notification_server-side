@@ -14,13 +14,6 @@ server:
 mybatis:
   mapper-locations: classpath:mapper/*.xml
 
-
-#  configuration:
-#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl #show sql
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-#    map-underscore-to-camel-case: false
-
-#file:
-#path: D:\AITraining\Backend\file\
