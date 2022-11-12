@@ -13,6 +13,11 @@ server:
 
 mybatis:
   mapper-locations: classpath:mapper/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+logging:
+  level:
+    classpath:mapper: trace
 
 mybatis-plus:
   configuration:
