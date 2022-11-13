@@ -9,6 +9,7 @@ import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 import org.mybatis.logging.Logger;
 import org.mybatis.logging.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -22,9 +23,24 @@ public class MessageSender {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private List<MessageInfo> messageList;
     private List<Hall> hallList;
-    public static final String ACCOUNT_SID = "AC374277cad4fcc4aa836eda0aecd6724b";
-    public static final String AUTH_TOKEN = "659999308e079c8804cfcb144986dd21";
-    public static final String FROM_NUMBER = "+17088347098";
+    public static String ACCOUNT_SID;
+    public static String AUTH_TOKEN;
+    public static String FROM_NUMBER;
+
+    @Value("${twilio.sid}")
+    public void setSid(String sid) {
+        ACCOUNT_SID = sid;
+    }
+
+    @Value("${twilio.token}")
+    public void setToken(String token) {
+        AUTH_TOKEN = token;
+    }
+
+    @Value("${twilio.from-number}")
+    public void setFromNumber(String from) {
+        FROM_NUMBER = from;
+    }
 
     @Resource
     private IMessageInfoService messageService;
@@ -45,19 +61,21 @@ public class MessageSender {
         for (MessageInfo msg : messageList) {
 
             if (msg.getMinute() == now.getMinute() && msg.getHour() == now.getHour()) {
-                if (!msg.getHasSent()) {
-                    try {
-                        sendMessage(FROM_NUMBER, msg.getPhoneNumber(), msgContent);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        break;
-                    }
+                if (msg.getHasSent())
+                    break;
+                try {
+                    sendMessage(FROM_NUMBER, msg.getPhoneNumber(), msgContent);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    break;
                 }
+
                 System.out.println(msgContent);
                 msg.setHasSent(true);
                 messageService.saveOrUpdate(msg);
             } else {
                 msg.setHasSent(false);
+                messageService.saveOrUpdate(msg);
             }
 
         }

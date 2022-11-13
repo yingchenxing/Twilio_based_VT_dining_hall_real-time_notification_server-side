@@ -1,6 +1,7 @@
 package com.example.vthacks_serverside.controller;
 
 
+import com.example.vthacks_serverside.common.Constants;
 import com.example.vthacks_serverside.common.Result;
 import com.example.vthacks_serverside.entity.MessageInfo;
 import com.example.vthacks_serverside.service.IMessageInfoService;
@@ -11,7 +12,6 @@ import java.util.List;
 
 /**
  * <p>
- *  前端控制器
  * </p>
  *
  * @author xic
@@ -23,16 +23,30 @@ public class MessageInfoController {
     @Resource
     private IMessageInfoService messageService;
 
-    //根据id新增或修改
+    //add or update by id
     @PostMapping
     public Result save(@RequestBody MessageInfo messageInfo) {
-        return Result.success(messageService.saveOrUpdate(messageInfo));
+        List<MessageInfo> list = messageService.getByPhone(messageInfo);
+        if (list.size() == 0)
+            return Result.success(messageService.saveOrUpdate(messageInfo));
+        else
+            return Result.error(Constants.CODE_401, "item not found");
     }
 
-    //根据id删除
+    // delete by id
     @DeleteMapping("/{id}")
     public Result delete(@PathVariable Integer id) {
-        return Result.success(messageService.removeById(id));
+        if(messageService.removeById(id))
+        return Result.success(true);
+        else
+            return Result.error(Constants.CODE_300,"fail to delete");
+    }
+
+
+    //delete by phone
+    @PostMapping("/del")
+    public Result deleteByPhone(@RequestBody MessageInfo messageInfo) {
+        return Result.success(messageService.removeByPhone(messageInfo));
     }
 
     //根据id批量删除
